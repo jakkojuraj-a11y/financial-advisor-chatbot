@@ -1,0 +1,26 @@
+# ─────────────────────────────────────────────────────────────
+# Docker Compose for local development and production
+# ─────────────────────────────────────────────────────────────
+
+services:
+  chatbot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: financial-advisor-chatbot
+    ports:
+      - "8501:8501"
+    env_file:
+      - .env
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: "1.0"
+    healthcheck:
+      test: [ "CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8501/_stcore/health')" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
