@@ -79,10 +79,16 @@ class ConversationMemory:
         """
         Return conversation history as a list of dicts.
 
+        Only returns the most recent turns (max_turns * 2 messages)
+        to minimize token usage per API call.
+
         Returns:
             List of {"role": "user"|"model", "content": "..."} dicts.
         """
-        return [msg.to_dict() for msg in self.messages]
+        # Only send recent messages to the API (saves tokens on free tier)
+        max_messages = self._max_turns * 2
+        recent = self.messages[-max_messages:] if len(self.messages) > max_messages else self.messages
+        return [msg.to_dict() for msg in recent]
 
     def get_display_history(self) -> list[dict[str, str]]:
         """
